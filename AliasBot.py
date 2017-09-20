@@ -13,6 +13,10 @@ client = discord.Client()
 with open("aliases") as fh:
 	aliases = json.load(fh)
 
+def updateAliases():
+	with open("aliases",'w') as fh:
+		json.dump(aliases, fh)
+
 @client.event
 @asyncio.coroutine
 def on_ready():
@@ -28,9 +32,11 @@ def on_message(message):
 		splitmessage = message.content.split(" ")
 		if splitmessage[1] == "add":
 			aliases[splitmessage[2]] = " ".join(splitmessage[3:])
+			updateAliases()
 			yield from client.send_message(message.channel, message.author.mention + " Alias " + splitmessage[2] + " added.")
 		if splitmessage[1] == "remove":
 			aliases.pop(splitmessage[2])
+			updateAliases()
 			yield from client.send_message(message.channel, message.author.mention + " Alias " + splitmessage[2] + " removed.")
 	else:
 		yield from client.send_message(message.channel, aliases[message.content])
