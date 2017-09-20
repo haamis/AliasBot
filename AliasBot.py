@@ -38,6 +38,11 @@ def on_message(message):
 			aliases.pop(splitmessage[2])
 			updateAliases()
 			yield from client.send_message(message.channel, message.author.mention + " Alias " + splitmessage[2] + " removed.")
+		if splitmessage[1] == "list":
+			alias_list = ""
+			for a in aliases:
+				alias_list += a + " : " + aliases[a] + "\n"
+			yield from client.send_message(message.channel, message.author.mention + "\n" + alias_list)
 	else:
 		yield from client.send_message(message.channel, aliases[message.content])
 
