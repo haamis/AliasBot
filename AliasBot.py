@@ -5,13 +5,17 @@ import json
 from discord.ext import commands
 import asyncio
 
-#if not discord.opus.is_loaded():
-#    discord.opus.load_opus('/usr/lib/x86_64-linux-gnu/libopus.so')
-
 client = discord.Client()
+
+aliases = {}
+
+token = ""
 
 with open("aliases") as fh:
 	aliases = json.load(fh)
+
+with open("token") as fh:
+	token = fh.read()
 
 def updateAliases():
 	with open("aliases",'w') as fh:
@@ -31,7 +35,7 @@ def on_message(message):
 	if message.content.startswith("!alias"):
 		splitmessage = message.content.split(" ")
 		if splitmessage[1] == "add":
-			aliases[splitmessage[2]] = " ".join(splitmessage[3:])
+			aliases[splitmessage[2]] = [" ".join(splitmessage[3:])]
 			updateAliases()
 			yield from client.send_message(message.channel, message.author.mention + " Alias " + splitmessage[2] + " added.")
 		if splitmessage[1] == "remove":
@@ -42,8 +46,16 @@ def on_message(message):
 			alias_list = ""
 			for a in aliases:
 				alias_list += a + " : " + aliases[a] + "\n"
-			yield from client.send_message(message.channel, message.author.mention + "\n" + alias_list)
+			yield from client.send_message(message.channel, message.author.mention + "\n" + "```" + alias_list + "```")
+	elif message.content.startswith("!macro"):
+		messagelines = message.content.split("\n")
+		splitmessage = messagelines[0].split(" ")
+		if splitmessage[1] == "add":
+			aliases[splitmessage[2]] = messagelines[1:]
+			updateAliases()
+			yield from client.send_message(message.channel, aliases)
 	else:
-		yield from client.send_message(message.channel, aliases[message.content])
+		for line in aliases[message.content]:
+			yield from client.send_message(message.channel, line)
 
-client.run('MzYwMTQwOTcxODM4NTM3NzI4.DKRPBw.CBYJlnbK4bzJ5jeHXbt783-XaIk')
+client.run(token)
